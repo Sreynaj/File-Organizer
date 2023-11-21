@@ -16,17 +16,31 @@ public class FileOrganizer {
     };    
 
     // Specify the source folder
-    private static String sourceFolder = "C:/Users/PC/Documents/My work";
+    private static String sourceFolder = "C:/Users/PC/Documents/IFL/CE";
 
     public static void main(String[] args) {
 
         try {
+            
+            createSubFolder(sourceFolder);
+
             // Organize files in the source folder
             organizeFiles(sourceFolder);
 
             System.out.println("Files organized successfully!");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void createSubFolder(String sourceFolder) {
+        for (String[] extensionAndfolder : extensionsAndFolders) {
+            String folderName = extensionAndfolder[1];
+
+            File folder = new File(sourceFolder, folderName);
+            if (!folder.exists()) {
+                folder.mkdirs();
+            }
         }
     }
 
