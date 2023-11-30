@@ -3,29 +3,51 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Scanner;
 
 public class FileOrganizer {
 
-    // Define the file extensions and corresponding folders
-    private static String[][] extensionsAndFolders = {
+    // Define the file extensions and corresponding folders for each plan
+    private static String[][] freeExtensionsAndFolders = {
             {"pdf", "PDFFiles"},
             {"docx", "WordFiles"},
             {"xlsx", "ExcelFiles"},
+            // Add more extensions for the Free plan as needed
+    };
+
+    private static String[][] basicExtensionsAndFolders = {
             {"csv", "ExcelFiles"},
-            // Add more extensions and folders as needed
-    };    
+            {"png", "PNGFiles"},
+            // Add more extensions for the Basic plan as needed
+    };
 
-    // Specify the source folder
-    private static String sourceFolder = "C:/Users/PC/Documents/IFL/CE";
+    private static String[][] proExtensionsAndFolders = {
+            {"ptxx", "PowerPointsFiles"},
+            {"JPG", "JPGFiles"},
+            {"zip", "ZIPFiles"},
+            // Add more extensions for the Pro plan as needed
+    };
 
-    public static void main(String[] args) {
+    private String userPlan;
+    private String localPath;
 
+    public void getUserInput() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to File Organizer!");
+        System.out.println("Please select your plan (Free, Basic, Pro):");
+        userPlan = scanner.nextLine();
+
+        System.out.println("Enter your local path:");
+        localPath = scanner.nextLine();
+    }
+
+    public void organizeFiles() {
         try {
-            
-            createSubFolder(sourceFolder);
+            createSubFolder(localPath);
 
             // Organize files in the source folder
-            organizeFiles(sourceFolder);
+            processFiles(localPath);
 
             System.out.println("Files organized successfully!");
         } catch (IOException e) {
@@ -33,7 +55,23 @@ public class FileOrganizer {
         }
     }
 
-    private static void createSubFolder(String sourceFolder) {
+    private void createSubFolder(String sourceFolder) {
+        String[][] extensionsAndFolders;
+        switch (userPlan) {
+            case "Free":
+                extensionsAndFolders = freeExtensionsAndFolders;
+                break;
+            case "Basic":
+                extensionsAndFolders = basicExtensionsAndFolders;
+                break;
+            case "Pro":
+                extensionsAndFolders = proExtensionsAndFolders;
+                break;
+            default:
+                System.out.println("Invalid plan. Files will not be organized.");
+                return;
+        }
+
         for (String[] extensionAndfolder : extensionsAndFolders) {
             String folderName = extensionAndfolder[1];
 
@@ -44,7 +82,7 @@ public class FileOrganizer {
         }
     }
 
-    private static void organizeFiles(String sourceFolder) throws IOException {
+    private void processFiles(String sourceFolder) throws IOException {
         File[] files = new File(sourceFolder).listFiles();
         if (files != null) {
             for (File file : files) {
@@ -52,9 +90,9 @@ public class FileOrganizer {
                     String fileName = file.getName();
                     String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
 
-                    // Find the corresponding folder for the file extension
+                    // Find the corresponding folder for the file extension based on the user's plan
                     String destinationSubFolder = findDestinationSubFolder(extension);
-                    
+
                     if (destinationSubFolder != null) {
                         // Move the file to the appropriate destination folder
                         Path sourcePath = file.toPath();
@@ -66,13 +104,33 @@ public class FileOrganizer {
         }
     }
 
-    private static String findDestinationSubFolder(String extension) {
-        
+    private String findDestinationSubFolder(String extension) {
+        String[][] extensionsAndFolders;
+        switch (userPlan) {
+            case "Free":
+                extensionsAndFolders = freeExtensionsAndFolders;
+                break;
+            case "Basic":
+                extensionsAndFolders = basicExtensionsAndFolders;
+                break;
+            case "Pro":
+                extensionsAndFolders = proExtensionsAndFolders;
+                break;
+            default:
+                return null;
+        }
+
         for (String[] extensionAndFolder : extensionsAndFolders) {
             if (extensionAndFolder[0].equalsIgnoreCase(extension)) {
                 return extensionAndFolder[1];
             }
         }
         return null; // Return null if no corresponding folder found
+    }
+
+    public static void main(String[] args) {
+        FileOrganizer organizer = new FileOrganizer();
+        organizer.getUserInput();
+        organizer.organizeFiles();
     }
 }
